@@ -13,8 +13,8 @@ Sesión breve, con poca carga teórica y una única demo. Materiales: `slides/01
 | Qué se ve igual | Guardado, recuperación, aislamiento e inspección del historial: la memoria es la de LangGraph en ambos casos | Lo mismo, con respuestas generadas por el LLM real |
 
 - **Ambos recorridos usan el mismo notebook 02**: si al ejecutarlo detecta clave entra en modo con API; si no, en modo sin API. No hay que preparar nada distinto.
-- **Alternativa visual sin Colab:** la app Streamlit (`streamlit run app.py`) reproduce la misma demo en el navegador (chat con memoria, cambio y borrado de sesiones, mapa del almacén). Útil para probar la clase en local o invitar al grupo a tocar la memoria tras la sesión.
-- LlamaIndex **no se instala ni se ejecuta**: solo se compara conceptualmente (diapositiva 5 y celda final del 02).
+- **Demo proyectable sin Colab:** la app Streamlit (`streamlit run app.py` o su URL desplegada) es la **demo guiada de la clase**: 5 escenarios de un clic (presentarse → segundo turno → otra sesión → ver el almacén → borrar) con explicación en pantalla del mecanismo. Sirve para impartir el bloque 15–30 sin tocar notebooks y para que el alumnado la trate después online (ver README, sección Streamlit).
+- LlamaIndex **no se instala ni se ejecuta**: solo se compara conceptualmente (diapositiva 5, pestaña «Cómo funciona» de la app y celda final del 02).
 
 ---
 

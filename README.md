@@ -135,17 +135,31 @@ jupyter nbconvert --to notebook --execute notebooks/02_Demo_Memories_Solucion.ip
 4. La rúbrica es literalmente esa salida: 4 tests = 4 criterios (`docs/rubrica.md`). No se corrige nada más a mano.
 5. El formador tiene `04_Reto_Memories_Solucion.ipynb` con los **mismos tests** resueltos y comentados.
 
-## Demo en vivo con Streamlit
+## Demo en vivo con Streamlit (proyectable)
 
-La app `app.py` reproduce la clase en el navegador: chat con memoria real, selector de sesiones (aislamiento), borrado de una sesión, mapa del almacén y pestañas con el reto y el material.
+`app.py` es la **demo de la clase para proyectar**: no duplica el reto (eso sigue siendo el notebook 03), sino que hace visibles los conceptos con escenarios de un clic y **explicación en pantalla** de lo que acaba de pasar.
+
+- 🎬 **Demo guiada**: 5 escenarios en orden — presentarse → segundo turno en el mismo hilo → repetir en otra sesión → ver el almacén por dentro → borrar la sesión — cada uno con una tarjeta 💡 que narra el mecanismo (guardado, reenvío, aislamiento, inspección, borrado). Chat libre y estado crudo debajo.
+- 🧠 **Cómo funciona**: diagrama del flujo, los tres niveles de memoria y la comparación LangChain/LlamaIndex.
+- 📋 **Para la clase**: plan de 60 min, enlaces de Colab y descargas de las diapositivas.
+- Tema oscuro coherente con el logo; el modo actual (Recorrido A/B) se ve siempre en la cabecera.
 
 ```bash
 pip install -r requirements.txt   # incluye streamlit==1.56.0
 streamlit run app.py              # abre http://localhost:8501
 ```
 
-- **Sin clave** usa el mismo `ModeloDeterminista` (Recorrido A). Si exportas `GROQ_API_KEY` en la terminal antes de arrancar, usa el LLM real (Recorrido B).
+- **Sin clave** usa el mismo `ModeloDeterminista` (Recorrido A). Con `GROQ_API_KEY` en el entorno o en los secrets de Streamlit, usa el LLM real (Recorrido B).
 - La memoria vive en la RAM del proceso: al reiniciar la app el historial empieza de cero (como en los notebooks).
+
+### Compartirlo online (Streamlit Community Cloud)
+
+1. Entra en [share.streamlit.io](https://share.streamlit.io) con tu cuenta de GitHub.
+2. **Create app** → *Yes, I have an app* → rellena: repositorio `juandelaf1/memories-langchain-llamaindex`, rama `main`, app path `app.py`.
+3. **Deploy**: en ~2 minutos queda online con una URL que puedes pasar a tus compañeros (funciona **sin clave**, en modo determinista).
+4. Opcional: en *Settings → Secrets* de la app añade `GROQ_API_KEY = "..."` para que en la nube use el LLM real.
+
+> Atajo: desde la app local, el botón «Deploy» (icono de nube, esquina superior derecha) abre el asistente con el repositorio ya detectado.
 
 ## Documentación oficial consultada
 
