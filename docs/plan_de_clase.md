@@ -4,6 +4,20 @@ Sesión breve, con poca carga teórica y una única demo. Materiales: `slides/01
 
 ---
 
+## Recorridos de la sesión
+
+| | **Recorrido A** (recomendado para impartir) | **Recorrido B** (opcional) |
+|---|---|---|
+| Qué | Demo del 02 **sin clave** (modelo determinista claramente identificado) + reto 03/04 | Demo del 02 **con** `GROQ_API_KEY` (LLM real de Groq) |
+| Requisitos | Ninguno: sin cuentas, sin claves, sin coste | Cuenta gratuita de Groq y la clave en los Secretos de Colab |
+| Qué se ve igual | Guardado, recuperación, aislamiento e inspección del historial: la memoria es la de LangGraph en ambos casos | Lo mismo, con respuestas generadas por el LLM real |
+
+- **Ambos recorridos usan el mismo notebook 02**: si al ejecutarlo detecta clave entra en modo con API; si no, en modo sin API. No hay que preparar nada distinto.
+- **Alternativa visual sin Colab:** la app Streamlit (`streamlit run app.py`) reproduce la misma demo en el navegador (chat con memoria, cambio y borrado de sesiones, mapa del almacén). Útil para probar la clase en local o invitar al grupo a tocar la memoria tras la sesión.
+- LlamaIndex **no se instala ni se ejecuta**: solo se compara conceptualmente (diapositiva 5 y celda final del 02).
+
+---
+
 ## Bloque 0 · Antes de empezar (checklist del formador)
 
 - [ ] Runtime de Colab con `GROQ_API_KEY` en los Secretos (o `OPENAI_API_KEY`). Si no hay clave, la demo corre en **modo sin API** (modelo determinista): se puede impartir igualmente.

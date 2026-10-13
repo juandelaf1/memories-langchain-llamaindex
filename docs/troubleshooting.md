@@ -82,6 +82,16 @@ Cada caso indica **síntoma → causa probable → solución concreta**.
 | 8.5 | `pip install` falla por red / `Read timed out` | Conexión inestable | Repite la celda de instalación; verifica con `pip show langchain`. |
 | 8.6 | El PDF o el PPTX no se abre desde Colab | Colab no gestiona archivos locales del repositorio | Descarga el archivo desde GitHub (botón *Download raw file*) y ábrelo localmente. |
 
+## 9. App Streamlit (`streamlit run app.py`)
+
+| # | Síntoma | Causa probable | Solución |
+|---|---------|----------------|----------|
+| 9.1 | `streamlit: command not found` | Streamlit no está en el entorno | `pip install -r requirements.txt` (incluye `streamlit==1.56.0`) o `pip install streamlit==1.56.0`. |
+| 9.2 | Puerto 8501 ocupado / la app abre en blanco | Otro proceso de Streamlit (u otra app) usa ese puerto | Arranca con `streamlit run app.py --server.port 8502` o cierra el proceso anterior. |
+| 9.3 | Al refrescar el navegador «desaparece» la conversación | El `InMemorySaver` vive en la RAM del proceso de Streamlit: el **historial entre sesiones de la app** no es persistente (igual que en los notebooks) | Vuelve a enviar un mensaje; para la clase eso es deseable: se ve que la memoria es de la aplicación, no del navegador. |
+| 9.4 | La app usa el modelo determinista aunque tengo la clave | `GROQ_API_KEY` no está visible para el proceso de Streamlit | Exporta la variable **en la misma terminal** antes de arrancar (`$env:GROQ_API_KEY="..."` en PowerShell, `export GROQ_API_KEY=...` en bash) y reinicia la app. En Windows, cierra y abre la terminal tras crearla en los ajustes del sistema. |
+| 9.5 | `ModuleNotFoundError: langchain` al abrir la app | Instalaste Streamlit pero no las dependencias de LangChain | `pip install -r requirements.txt` completo. |
+
 ---
 
 **Si aparece un error no listado:** anota el mensaje completo, comprueba con `pip show langchain langgraph langchain-core` qué versiones hay realmente instaladas y consulta la guía de memoria vigente: <https://docs.langchain.com/oss/python/langchain/short-term-memory>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Memories — logo">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1B2A4A"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#fondo)"/>
+  <!-- burbuja de chat -->
+  <path d="M64 88c0-13.3 10.7-24 24-24h80c13.3 0 24 10.7 24 24v56c0 13.3-10.7 24-24 24h-8l-28 24v-24h-48c-13.3 0-24-10.7-24-24V88z" fill="#FFFFFF"/>
+  <!-- grafo de memoria dentro de la burbuja -->
+  <g stroke="#0F766E" stroke-width="6" stroke-linecap="round">
+    <line x1="100" y1="104" x2="140" y2="88"/>
+    <line x1="140" y1="88" x2="164" y2="118"/>
+    <line x1="100" y1="104" x2="124" y2="136"/>
+    <line x1="124" y1="136" x2="164" y2="118"/>
+  </g>
+  <g fill="#1B2A4A">
+    <circle cx="100" cy="104" r="12"/>
+    <circle cx="140" cy="88" r="12"/>
+  </g>
+  <g fill="#0F766E">
+    <circle cx="164" cy="118" r="12"/>
+    <circle cx="124" cy="136" r="12"/>
+  </g>
+</svg>
