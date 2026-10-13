@@ -523,9 +523,7 @@ with tab_clase:
         """
         | Notebook | Uso | Enlace |
         |---|---|---|
-        | 02 Demo | Formador (con o sin API) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/02_Demo_Memories_Solucion.ipynb) |
-        | 03 Reto | **Alumnado** (sin API, con tests) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/03_Reto_Memories_Alumno.ipynb) |
-        | 04 Solución | Formador | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/04_Reto_Memories_Solucion.ipynb) |
+        | Reto | **Alumnado** (sin API, con tests) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/03_Reto_Memories_Alumno.ipynb) |
         """
     )
 
