@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="110" alt="Logo Memories">
+  <img src="assets/memories.png" width="180" alt="Logo Memories — LangChain & LlamaIndex">
 </p>
 
 <h1 align="center">Memories con LangChain y LlamaIndex</h1>
@@ -53,7 +53,8 @@ memories-langchain-llamaindex/
 ├── requirements.txt                           ← versiones probadas (+ streamlit, opcional)
 ├── app.py                                     ← demo interactiva con Streamlit
 ├── assets/
-│   └── logo.svg                               ← logo del material
+│   ├── memories.png                            ← logo del material (README)
+│   └── logo.svg                                ← logo vectorial (app Streamlit)
 ├── slides/
 │   ├── 01_Memories.pptx                       ← presentación (editable, con notas del ponente)
 │   └── 01_Memories.pdf                        ← presentación (versión de reparto)
