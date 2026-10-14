@@ -37,6 +37,14 @@ SYSTEM_PROMPT = (
     "en menos de 60 palabras y con explicaciones sencillas."
 )
 
+# Referencia didáctica: token_limit por defecto de LlamaIndex Memory (30.000)
+LIMITE_REFERENCIA = 30_000
+
+COLAB = (
+    "https://colab.research.google.com/github/juandelaf1/"
+    "memories-langchain-llamaindex/blob/main/notebooks/"
+)
+
 # ====================================================================== CSS
 
 CSS = """
@@ -157,8 +165,17 @@ def hilo(id_sesion):
     return {"configurable": {"thread_id": id_sesion}}
 
 
+def tid(nombre):
+    """thread_id real: nombre lógico + prefijo de este navegador.
+
+    Dos visitantes de la misma URL usan prefijos distintos, así que sus
+    hilos nunca colisionan en el almacén compartido del proceso.
+    """
+    return st.session_state.prefijo + nombre
+
+
 def mensajes_de(id_sesion):
-    estado = get_agente(CON_CLAVE).get_state(hilo(id_sesion))
+    estado = get_agente(CON_CLAVE).get_state(hilo(tid(id_sesion)))
     return estado.values.get("messages", [])
 
 
@@ -166,10 +183,16 @@ def n_mensajes(id_sesion):
     return len(mensajes_de(id_sesion))
 
 
+def estimar_tokens(id_sesion):
+    """Estimación ~4 caracteres por token del historial reenviado en un turno."""
+    texto = " ".join(str(m.content) for m in mensajes_de(id_sesion))
+    return max(1, len(texto) // 4)
+
+
 def invocar(id_sesion, texto):
     return get_agente(CON_CLAVE).invoke(
         {"messages": [{"role": "user", "content": texto}]},
-        hilo(id_sesion),
+        hilo(tid(id_sesion)),
     )
 
 
@@ -190,6 +213,9 @@ MODO = ("Recorrido B · LLM real de Groq" if CON_CLAVE
 
 # ====================================================================== estado
 
+if "prefijo" not in st.session_state:
+    # Prefijo por navegador: dos visitantes de la URL desplegada no comparten hilos.
+    st.session_state.prefijo = uuid.uuid4().hex[:6] + "-"
 if "sesiones" not in st.session_state:
     st.session_state.sesiones = ["sesion-demo"]
 if "sesion_widget" not in st.session_state:
@@ -221,7 +247,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-c1, c2, c3, c4 = st.columns([2.2, 1, 1, 1.6])
+c1, c2, c3, c4, c5 = st.columns([2.2, 1, 1, 1, 1.6])
 with c1:
     st.caption(f"**Modo actual:** {MODO} — el checkpointer y el `thread_id` son reales en ambos casos.")
 with c2:
@@ -229,6 +255,14 @@ with c2:
 with c3:
     st.metric("Mensajes guardados", sum(n_mensajes(s) for s in st.session_state.sesiones))
 with c4:
+    st.metric(
+        "Tokens del hilo activo (aprox.)",
+        estimar_tokens(st.session_state.sesion_widget),
+        help="Estimación de los tokens del historial que se reenvía en cada turno "
+             "(~4 caracteres por token). Límite de referencia: 30.000 "
+             "(token_limit por defecto de LlamaIndex Memory).",
+    )
+with c5:
     if CON_CLAVE:
         st.success("🟢 Con LLM real (Groq)")
     else:
@@ -240,7 +274,7 @@ st.sidebar.header("🎛️ Sesiones (thread_id)")
 
 if st.sidebar.button("🔁 Reiniciar la demo", use_container_width=True):
     for sid in ("esc-alex", "esc-otra", *list(st.session_state.sesiones)):
-        get_almacen().delete_thread(sid)
+        get_almacen().delete_thread(tid(sid))
     st.session_state.sesiones = ["sesion-demo"]
     st.session_state.sesion_widget = "sesion-demo"
     st.session_state.explicador = None
@@ -253,14 +287,14 @@ if st.sidebar.button("➕ Nueva sesión vacía", use_container_width=True):
 
 if st.sidebar.button("🗑️ Borrar sesión activa", type="primary", use_container_width=True):
     actual = st.session_state.sesion_widget
-    get_almacen().delete_thread(actual)
+    get_almacen().delete_thread(tid(actual))
     if actual in st.session_state.sesiones:
         st.session_state.sesiones.remove(actual)
     if not st.session_state.sesiones:
         st.session_state.sesiones = ["sesion-demo"]
     st.session_state.sesion_widget = st.session_state.sesiones[0]
     explicar("Sesión borrada",
-             f"`delete_thread(\"{actual}\")` eliminó el checkpoint de ese hilo. "
+             f"`delete_thread(\"{tid(actual)}\")` eliminó el checkpoint de ese hilo. "
              "Las demás sesiones no se enteran: el borrado es selectivo.")
     st.rerun()
 
@@ -277,12 +311,20 @@ st.sidebar.divider()
 st.sidebar.subheader("🗂️ Mapa del almacén")
 for sid in st.session_state.sesiones:
     n = n_mensajes(sid)
+    toks = estimar_tokens(sid)
     marca = " ← **activa**" if sid == st.session_state.sesion_widget else ""
-    st.sidebar.markdown(f"`{sid}`{marca}  \n{'🟩' * min(n, 10)}{'⬜' * max(0, 10 - n)} **{n}**")
+    st.sidebar.markdown(
+        f"`{sid}`{marca}  \n{'🟩' * min(n, 10)}{'⬜' * max(0, 10 - n)} "
+        f"**{n}** mensajes · ~**{toks}** tokens"
+    )
 
+st.sidebar.progress(
+    min(estimar_tokens(st.session_state.sesion_widget) / LIMITE_REFERENCIA, 1.0),
+    text=f"Hilo activo vs {LIMITE_REFERENCIA:,} tokens (referencia LlamaIndex)".replace(",", "."),
+)
 st.sidebar.caption(
     "Cada fila es un `thread_id`: un historial independiente. "
-    "Cambiar de sesión en el selector es cambiar de conversación aislada."
+    "Los tokens son estimación (~4 caracteres/token) del texto que se reenvía al modelo."
 )
 
 # ====================================================================== pestañas
@@ -317,7 +359,7 @@ with tab_demo:
         st.session_state.cambiar_a = "esc-alex"
         explicar(
             "Escenario 1 · el mensaje se GUARDA",
-            f"Tu mensaje viajó al agente con `thread_id = \"esc-alex\"`. El **checkpointer** "
+            f"Tu mensaje viajó al agente con `thread_id = \"{tid('esc-alex')}\"`. El **checkpointer** "
             f"(el almacén de LangGraph) añadió 2 mensajes: el tuyo y la respuesta. "
             f"Ahora ese hilo tiene **{n_mensajes('esc-alex')} mensajes**. "
             "Respuesta del asistente: «*"
@@ -346,9 +388,9 @@ with tab_demo:
         st.session_state.cambiar_a = "esc-otra"
         explicar(
             "Escenario 3 · el AISLAMIENTO por thread_id",
-            "Misma pregunta, mismo modelo, **otro `thread_id`** (\"esc-otra\"): la respuesta no "
-            "sabe quién es Alex ni que prefiere Python, porque ese historial vive en el hilo "
-            "«esc-alex» y aquí no se reenvía nada. "
+            f"Misma pregunta, mismo modelo, **otro `thread_id`** (`{tid('esc-otra')}`): la respuesta no "
+            f"sabe quién es Alex ni que prefiere Python, porque ese historial vive en el hilo "
+            f"`{tid('esc-alex')}` y aquí no se reenvía nada. "
             "Si dos usuarios compartieran el mismo `thread_id`, Alex contaría su vida al otro: "
             "por eso **un id por sesión**.",
         )
@@ -370,10 +412,10 @@ with tab_demo:
         if n_mensajes("esc-alex") == 0:
             explicar("Nada que borrar", "Primero ejecuta el escenario 1 (la sesión de Alex está vacía).")
         else:
-            get_almacen().delete_thread("esc-alex")
+            get_almacen().delete_thread(tid("esc-alex"))
             explicar(
                 "Escenario 5 · el BORRADO (derecho al olvido)",
-                f"`delete_thread(\"esc-alex\")` dejó ese hilo en **0 mensajes** y «esc-otra» sigue "
+                f"`delete_thread(\"{tid('esc-alex')}\")` dejó ese hilo en **0 mensajes** y «esc-otra» sigue "
                 "intacta. El borrado es una operación técnica de la aplicación, selectiva por hilo: "
                 "exactamente lo que exige el RGPD cuando alguien pide eliminar su conversación. "
                 "Guarda más no es mejor: minimiza, aísla, borra.",
@@ -482,11 +524,41 @@ with tab_como:
         | | LangChain (visto arriba) | LlamaIndex |
         |---|---|---|
         | Objeto central | `checkpointer` + `thread_id` | clase **`Memory`** con `session_id` |
-        | Corto plazo | estado del hilo (checkpoint) | cola FIFO con límite de tokens |
+        | Corto plazo | estado del hilo (checkpoint), **sin límite propio** | **cola FIFO con `token_limit`** |
         | Largo plazo | `store` con namespaces | **Memory Blocks** (hechos, estáticos, vectoriales) |
 
         LlamaIndex **no se instala aquí**: solo situar sus nombres. En ambos frameworks,
         alguien tiene que guardar el historial y reenviarlo: eso es la memoria.
+        """
+    )
+
+    st.subheader("¿Cuánta memoria guarda? El límite de tokens")
+    st.markdown(
+        """
+        **En esta app (LangChain):** el `InMemorySaver` guarda **todos** los mensajes del hilo;
+        no recorta nada. El techo real lo pone la **ventana de contexto del modelo**: lo que
+        superes, no cabe en el prompt. Por eso la barra lateral estima los tokens que se
+        reenvían en cada turno (~4 caracteres por token).
+
+        **En LlamaIndex (`Memory.from_defaults`)**, el límite es explícito y con valores por defecto
+        concretos:
+
+        | Parámetro | Valor por defecto | Qué hace |
+        |---|---|---|
+        | `token_limit` | **30.000** tokens | Máximo total en memoria (corto + largo plazo) |
+        | `chat_history_token_ratio` | **0,7** | 70 % del límite para el historial, 30 % para los bloques |
+        | `token_flush_size` | **10 %** de 30.000 = **3.000** | Al desbordarse la cola, se expulsa esa cantidad hacia los bloques |
+
+        **Cómo lo hace (waterfall):** la cola FIFO acumula mensajes; al superar
+        `token_limit × 0,7`, los mensajes **más antiguos** se archivan y se pasan a los
+        **Memory Blocks** (`StaticMemoryBlock`, `FactExtractionMemoryBlock`, `VectorMemoryBlock`).
+        Cada bloque tiene `priority`: la **0 nunca se recorta**; el resto se trunca primero
+        si el total vuelve a exceder el límite. Al recuperar, historial + bloques se fusionan
+        y se insertan en el system (o en el último mensaje de usuario).
+
+        **Traducción a esta clase:** LangChain te da el almacén y el aislamiento; el recorte
+        (resumen/poda) es trabajo tuyo. LlamaIndex te da el almacén, el aislamiento **y**
+        la política de límite por defecto.
         """
     )
 
@@ -504,27 +576,34 @@ with tab_como:
 # ------------------------------------------------------------------ para la clase
 
 with tab_clase:
-    st.subheader("Plan de la píldora (60 min)")
-    st.markdown(
-        """
-        | Min | Bloque |
-        |---|---|
-        | 0–5 | **El problema**: dos preguntas sin memoria → el LLM no recuerda |
-        | 5–15 | **Conceptos**: qué es/no es, tres niveles, diagrama (pestaña «Cómo funciona») |
-        | 15–30 | **Demo en vivo**: los 5 escenarios de esta app o el notebook 02 |
-        | 30–50 | **Reto** en Colab: 3 funciones + 4 tests (notebook 03) |
-        | 50–55 | *Run all* conjunto → `4/4` = rúbrica automática |
-        | 55–60 | Límites, criterio ético y cierre |
-        """
-    )
-
     st.subheader("Notebooks en Google Colab")
-    st.markdown(
-        """
-        | Notebook | Uso | Enlace |
-        |---|---|---|
-        | Reto | **Alumnado** (sin API, con tests) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/03_Reto_Memories_Alumno.ipynb) |
-        """
+    st.caption(
+        "Los tres notebooks del material: demo del formador, reto del alumnado "
+        "(sin API, con tests) y solucionario. El plan minutado está en "
+        "`docs/plan_de_clase.md`."
+    )
+    nb1, nb2, nb3 = st.columns(3)
+    with nb1:
+        st.link_button(
+            "📘 02 · Demo (formador)",
+            COLAB + "02_Demo_Memories_Solucion.ipynb",
+            use_container_width=True,
+        )
+    with nb2:
+        st.link_button(
+            "📗 03 · Reto (alumnado)",
+            COLAB + "03_Reto_Memories_Alumno.ipynb",
+            use_container_width=True,
+        )
+    with nb3:
+        st.link_button(
+            "📙 04 · Solución (formador)",
+            COLAB + "04_Reto_Memories_Solucion.ipynb",
+            use_container_width=True,
+        )
+    st.caption(
+        "03 y 04 comparten los mismos 4 tests: la rúbrica es literalmente la salida "
+        "`4/4` del Run all (ver `docs/rubrica.md`)."
     )
 
     c1, c2 = st.columns(2)
@@ -546,7 +625,8 @@ with tab_clase:
         )
 
     st.info(
-        "Documentación completa del repositorio: `README.md` (recorridos A/B), "
-        "`docs/plan_de_clase.md` (guion minutado), `docs/rubrica.md` (4 criterios), "
-        "`docs/criterio_etico.md` y `docs/troubleshooting.md`."
+        "📁 Repositorio completo con todo el material: "
+        "[github.com/juandelaf1/memories-langchain-llamaindex](https://github.com/juandelaf1/memories-langchain-llamaindex) — "
+        "incluye `README.md` (recorridos A/B), `docs/plan_de_clase.md` (guion minutado), "
+        "`docs/rubrica.md` (4 criterios), `docs/criterio_etico.md` y `docs/troubleshooting.md`."
     )

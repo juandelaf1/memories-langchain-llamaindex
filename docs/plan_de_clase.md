@@ -23,8 +23,16 @@ Sesión breve, con poca carga teórica y una única demo. Materiales: `slides/01
 - [ ] Runtime de Colab con `GROQ_API_KEY` en los Secretos (o `OPENAI_API_KEY`). Si no hay clave, la demo corre en **modo sin API** (modelo determinista): se puede impartir igualmente.
 - [ ] `slides/01_Memories.pdf` abierto en pantalla completa.
 - [ ] Notebook del formador **ejecutado de principio al fin** antes de la sesión (Runtime → Run all).
-- [ ] Notebook del reto copiado donde lo tenga el alumnado (enlace de Colab en el README).
+- [ ] Notebook del reto copiado donde lo tenga el alumnado (enlace de Colab abajo).
 - [ ] Reloj visible: los tiempos son orientativos pero la sesión es de 60 min exactos.
+
+### Notebooks en Google Colab
+
+| Notebook | Uso | Enlace |
+|----------|-----|--------|
+| 02 Demo | Formador (con o sin API) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/02_Demo_Memories_Solucion.ipynb) |
+| 03 Reto | **Alumnado** (sin API, con tests) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/03_Reto_Memories_Alumno.ipynb) |
+| 04 Solución | Formador (tras el reto) | [Abrir en Colab](https://colab.research.google.com/github/juandelaf1/memories-langchain-llamaindex/blob/main/notebooks/04_Reto_Memories_Solucion.ipynb) |
 
 ---
 

@@ -141,8 +141,9 @@ jupyter nbconvert --to notebook --execute notebooks/02_Demo_Memories_Solucion.ip
 
 - 🎬 **Demo guiada**: 5 escenarios en orden — presentarse → segundo turno en el mismo hilo → repetir en otra sesión → ver el almacén por dentro → borrar la sesión — cada uno con una tarjeta 💡 que narra el mecanismo (guardado, reenvío, aislamiento, inspección, borrado). Chat libre y estado crudo debajo.
 - 🧠 **Cómo funciona**: diagrama del flujo, los tres niveles de memoria y la comparación LangChain/LlamaIndex.
-- 📋 **Para la clase**: plan de 60 min, enlaces de Colab y descargas de las diapositivas.
-- Tema oscuro coherente con el logo; el modo actual (Recorrido A/B) se ve siempre en la cabecera.
+- 📋 **Para la clase**: botones a los 3 notebooks en Colab (02, 03 y 04) y descargas de las diapositivas; el plan minutado vive en [`docs/plan_de_clase.md`](docs/plan_de_clase.md).
+- Métricas en vivo: mensajes y **tokens estimados del hilo activo** (la barra lateral los compara con 30.000, el `token_limit` por defecto de LlamaIndex Memory).
+- Tema oscuro coherente con el logo; el modo actual (Recorrido A/B) se ve siempre en la cabecera. Cada visitante ve hilos aislados (prefijo de sesión por navegador); la memoria vive en RAM y se vacía al reiniciar.
 
 ```bash
 pip install -r requirements.txt   # incluye streamlit==1.56.0
